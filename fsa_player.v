@@ -1,13 +1,15 @@
-module fsa_player(clk, reset_n, p_up, p_down, y_pos, y_neg, add_x, add_y, colour, write_en);
+module fsa_player(clk, reset_n, p_up, p_down, y_pos_mod, y_neg_mod, add_x, add_y, colour, write_en);
 	input clk; // Clock cycle for the system, should be 60 Hz
 	input reset_n; // Resets the position of the ship/all states
 	input p_down; // Indicates when to move the player down
 	input p_up; // Indicates when to move the player up
 
-	output y_pos_mod; // Based on up/down, change the position of the ship
+	output y_pos_mod; // Based on up, move the ship up
+	output y_neg_mod; // Based on down, move the ship down
 	output add_x; // Tells the datapath which pixel to draw to VGA
 	output reg [1:0] add_y; // Tells the datapath which pixel to draw to VGA
 	output write_en; // Tells the VGA when to draw
+	output [2:0] colour;
 	// ****************************
 	// ***** DEFINE STATES ********
 	// ****************************
@@ -67,6 +69,7 @@ module fsa_player(clk, reset_n, p_up, p_down, y_pos, y_neg, add_x, add_y, colour
 		y_pos_mod = 0;
 		y_neg_mod = 0;
 		write_en = 0;
+		colur = 3'b000;
 
 		case (current_state)
 		UP1: begin
@@ -80,11 +83,13 @@ module fsa_player(clk, reset_n, p_up, p_down, y_pos, y_neg, add_x, add_y, colour
 		UP3: begin
 			add_y = 2'b01;
 			write_en = 1;
+			colour = 3'b111;
 		end
 		UP4: begin
 			add_x = 1;
 			add_y = 2'b01;
 			write_en = 1;
+			colour = 3'b111;
 		end
 		UP5: begin
 			add_y = 2'b10;
@@ -106,11 +111,13 @@ module fsa_player(clk, reset_n, p_up, p_down, y_pos, y_neg, add_x, add_y, colour
 		DOWN3: begin
 			add_y = 2'b01;
 			write_en = 1;
+			colour = 3'b111;
 		end
 		DOWN4: begin
 			add_x = 1;
 			add_y = 2'b01;
 			write_en = 1;
+			colour = 3'b111;
 		end
 		DOWN5: begin
 			add_y = 2'b10;
@@ -131,7 +138,7 @@ module fsa_player(clk, reset_n, p_up, p_down, y_pos, y_neg, add_x, add_y, colour
 	begin: state_FFs
 		if(!reset_n)
 		begin
-			current_state = WAIT;
+			current_state <= WAIT;
 		end
 		else
 		begin
