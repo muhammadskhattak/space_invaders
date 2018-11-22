@@ -90,7 +90,6 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
   wire [1:0] add_y;
   wire y_pos_mod;
   wire y_neg_mod;
-  wire [2:0] colour;
   // **********************
   // ***** DATAPATH *******
   // **********************
