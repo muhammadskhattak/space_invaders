@@ -12,6 +12,8 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
                 VGA_B); //VGA Blue[9:0]
 	input [0:0] KEY;
 	input CLOCK_50;			//	50 MHz
+	inout PS2_CLK;
+	inout PS2_DAT;
 	wire resetn;
 	assign resetn = KEY[0];
 	// Declare your inputs and outputs here
