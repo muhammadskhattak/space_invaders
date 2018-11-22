@@ -122,4 +122,19 @@ module fsa_player(clk, reset_n, p_up, p_down, y_pos, y_neg, add_x, add_y, colour
       write_en = 1;
     endcase
   end
+
+  // ***************************
+  // ******** CONTROL **********
+  // ***************************
+  always @(posedge clk)
+  begin: state_FFs
+    if(!reset_n)
+    begin:
+      current_state = WAIT;
+    end
+    else
+    begin:
+      current_state <= next_state;
+    end
+  end
 endmodule
