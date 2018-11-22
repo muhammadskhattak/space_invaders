@@ -4,12 +4,12 @@ module fsa_player(clk, reset_n, p_up, p_down, y_pos_mod, y_neg_mod, add_x, add_y
 	input p_down; // Indicates when to move the player down
 	input p_up; // Indicates when to move the player up
 
-	output y_pos_mod; // Based on up, move the ship up
-	output y_neg_mod; // Based on down, move the ship down
-	output add_x; // Tells the datapath which pixel to draw to VGA
+	output reg y_pos_mod; // Based on up, move the ship up
+	output reg y_neg_mod; // Based on down, move the ship down
+	output reg add_x; // Tells the datapath which pixel to draw to VGA
 	output reg [1:0] add_y; // Tells the datapath which pixel to draw to VGA
-	output write_en; // Tells the VGA when to draw
-	output [2:0] colour;
+	output reg write_en; // Tells the VGA when to draw
+	output reg [2:0] colour;
 	// ****************************
 	// ***** DEFINE STATES ********
 	// ****************************
