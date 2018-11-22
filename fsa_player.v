@@ -1,8 +1,8 @@
-module fsa_player(clk, reset_n, p_up, p_down, y_pos_mod, y_neg_mod, add_x, add_y, colour, write_en);
+module fsa_player(clk, reset_n, up, down, y_pos_mod, y_neg_mod, add_x, add_y, colour, write_en);
 	input clk; // Clock cycle for the system, should be 60 Hz
 	input reset_n; // Resets the position of the ship/all states
-	input p_down; // Indicates when to move the player down
-	input p_up; // Indicates when to move the player up
+	input down; // Indicates when to move the player down
+	input up; // Indicates when to move the player up
 
 	output reg y_pos_mod; // Based on up, move the ship up
 	output reg y_neg_mod; // Based on down, move the ship down
@@ -69,7 +69,7 @@ module fsa_player(clk, reset_n, p_up, p_down, y_pos_mod, y_neg_mod, add_x, add_y
 		y_pos_mod = 0;
 		y_neg_mod = 0;
 		write_en = 0;
-		colur = 3'b000;
+		colour = 3'b000;
 
 		case (current_state)
 		UP1: begin

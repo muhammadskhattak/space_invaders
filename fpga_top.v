@@ -4,8 +4,8 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
                 VGA_HS, // The VGA horizontal sync
                 VGA_VS, // The VGA vertical sync
                 VGA_BLANK_N, // The VGA Blank
-					 inout PS2_CLK,
-					 inout PS2_DAT,
+					 PS2_CLK,
+					 PS2_DAT,
                 VGA_SYNC_N, // VGA Sync
                 VGA_R, // VGA Red[9:0]
                 VGA_G, // VGA Green[9:0]
@@ -83,7 +83,7 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 		.left(left_pressed),
 		.right(right_pressed),
 		.up(up_pressed),
-		.down(down_pressed)
+		.down(down_pressed),
 		.space(space),
 		.enter(enter)
 		);
