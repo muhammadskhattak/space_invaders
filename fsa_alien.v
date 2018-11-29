@@ -1,10 +1,11 @@
-module fsa_alien(clk, reset_n, add_x, colour, write_en);
+module fsa_alien(clk, reset_n, draw_enable, add_x, colour, write_en, continue_draw);
   input clk; // Clock cycle for the system,,
-  input reset_n;
-  output reg [2:0] add_x;
-  output reg [2:0] colour;
-  output reg write_en;
-
+  input reset_n; // Resets the states
+  input draw_enable; // Tells the FSA when it should start writing
+  output reg [2:0] add_x; // Draw the pixel at x_pixel + add_x
+  output reg [2:0] colour; // Determines the colour of the pixel
+  output reg write_en; // Tells the VGA if it should write
+  output continue_draw; // Tells the FPGA top FSA to draw the next object
 	// ****************************
 	// ***** DEFINE STATES ********
 	// ****************************
@@ -24,7 +25,12 @@ module fsa_alien(clk, reset_n, add_x, colour, write_en);
   always@(*)
   begin:states
     case(current_state)
-      WAIT : next_state = RIGHT1;
+      WAIT : begin
+      if (draw_enable == 1)
+        next_state = RIGHT1;
+      else
+        next_state = WAIT;
+      end
       RIGHT1 : next_state = RIGHT2;
       RIGHT2 : next_state = RIGHT3;
       RIGHT3 : next_state = RIGHT4;
@@ -40,7 +46,7 @@ module fsa_alien(clk, reset_n, add_x, colour, write_en);
     add_x = 2'b000;
     colour = 2'b000;
     write_en = 0;
-
+    continue_draw = 0;
     case (current_state)
     RIGHT1: begin
       write_en = 1;
@@ -63,6 +69,7 @@ module fsa_alien(clk, reset_n, add_x, colour, write_en);
     RIGHT5: begin
       write_en = 1;
       add_x = 2'b100;
+      continue_draw = 1;
     end
   end
 endmodule

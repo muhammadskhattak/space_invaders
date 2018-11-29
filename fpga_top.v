@@ -4,8 +4,8 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
                 VGA_HS, // The VGA horizontal sync
                 VGA_VS, // The VGA vertical sync
                 VGA_BLANK_N, // The VGA Blank
-					 PS2_CLK,
-					 PS2_DAT,
+					      PS2_CLK,
+					      PS2_DAT,
                 VGA_SYNC_N, // VGA Sync
                 VGA_R, // VGA Red[9:0]
                 VGA_G, // VGA Green[9:0]
@@ -86,34 +86,100 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 		.space(space),
 		.enter(enter)
 		);
-  wire add_x;
-  wire [1:0] add_y;
+  // **********************
+  // **** PLAYER FIELD ****
+  // **********************
+  wire player_add_x;
+  wire [1:0] player_add_y;
   wire y_pos_mod;
   wire y_neg_mod;
+	wire [2:0] player_colour;
+	wire [7:0] player_x;
+	wire [6:0] player_y;
+  wire finished_player;
+  // **********************
+  // **** ALIEN FIELDS ****
+  // **********************
+  wire [6:0] alien_y_init;
+  wire [2:0] alien_add_x;
+  wire [7:0] alien_x;
+  wire [6:0] alien_y;
+  wire alien_colour;
+  wire finished_alien;
+
+  assign alien_y_init = 7'b0001111;
+
   // **********************
   // ***** DATAPATH *******
   // **********************
   player player1(.clk(CLOCK_50),
                   .reset_n(reset_n),
-                  .add_x(add_x),
-                  .add_y(add_y),
+                  .add_x(player_add_x),
+                  .add_y(player_add_y),
                   .y_pos_mod(y_pos_mod),
                   .y_neg_mod(y_neg_mod),
-                  .x_pos(x),
-                  .y_pos(y));
+                  .x_pos(player_x),
+                  .y_pos(player_y));
+
+  alien alien1(.clk(CLOCK_50),
+              .reset_n(reset_n),
+              .y_init(alien_y_init),
+              .add_x(alien_add_x),
+              .x_pos(alien_x),
+              .y_pos(alien_y));
+  // **********************
+  // **** CONTROLLER ******
+  // **********************
+  fsa_player player_fsa1(.clk(CLOCK_50),
+                  .reset_n(reset_n),
+                  .up(up_pressed),
+                  .down(down_pressed),
+                  .draw_enable(ready_player), // Might need to change this to instead be based on some other signal
+                  .y_pos_mod(y_pos_mod),
+                  .y_neg_mod(y_neg_mod),
+                  .add_x(player_add_x),
+                  .add_y(player_add_y),
+                  .colour(player_colour),
+                  .write_en(writeEn)
+                  .continue_draw(finished_player));
+
+  fsa_alien alien_fsa1(.clk(CLOCK_50),
+                  .reset_n(reset_n),
+                  .draw_enable(ready_alien), // Might instead set to this to some more global signal
+                  .add_x(alien_add_x),
+                  .colour(alien_colour),
+                  .write_en(writeEn),
+                  .continue_draw(finished_alien));
 
   // **********************
   // **** CONTROLLER ******
   // **********************
-  fsa_player fsa1(.clk(CLOCK_50),
-                  .reset_n(reset_n),
-                  .up(up_pressed),
-                  .down(down_pressed),
-                  .y_pos_mod(y_pos_mod),
-                  .y_neg_mod(y_neg_mod),
-                  .add_x(add_x),
-                  .add_y(add_y),
-                  .colour(colour),
-                  .write_en(writeEn));
+  wire ready_player;
+  wire ready_alien;
+  wire curr;
 
+  always@(posedge CLOCK_50) begin
+  if (finished_player)
+    curr = 1; // Now draw the alien
+  if (finished_alien)
+    curr = 0; // Now draw the player1
+  if (~finished_alien && ~finished_player)
+    curr = 0;
+
+  if (curr == 0)
+    begin
+      ready_player = 1;
+      ready_alien = 0;
+      x_pos = player_x;
+      y_pos = player_y;
+      colour = player_colour;
+    end
+  else if (curr == 1)
+    begin
+      ready_player = 0;
+      ready_alien = 1;
+      x_pos = alien_x;
+      y_pos = alien_y;
+      colour = alien_colour;
+  end
 endmodule

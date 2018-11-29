@@ -15,7 +15,10 @@ module alien(clk, reset_n, y_init, add_x, x_pos, y_pos);
     x_pixel <= 8'b00000000;
     y_pixel <= y_init;
   end
-
-  assign x_pos = x_pixel + add_x;
-  assign y_pos = y_pixel;
+  if (draw_enable)
+  begin
+    assign x_pos = x_pixel + add_x;
+    assign y_pos = y_init;
+  end
+  end
 endmodule
