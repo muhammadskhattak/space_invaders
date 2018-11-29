@@ -15,7 +15,7 @@ module player(clk, reset_n, add_x, add_y, y_pos_mod, y_neg_mod, x_pos, y_pos);
 	 //Determines what y increment is
     always @(posedge clk) begin
 		if (!reset_n)
-			y_pixel <= 8'b0;
+			y_pixel <= 8'b00000000;
 		else begin
 			if (y_pos_mod)
 				y_pixel <= y_pixel - 1;
