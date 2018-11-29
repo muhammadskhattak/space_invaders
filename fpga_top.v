@@ -10,15 +10,15 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
                 VGA_R, // VGA Red[9:0]
                 VGA_G, // VGA Green[9:0]
                 VGA_B); //VGA Blue[9:0]
-	input [0:0] KEY;
+	input [3:0] KEY;
 	input CLOCK_50;			//	50 MHz
 	inout PS2_CLK;
 	inout PS2_DAT;
-	wire resetn;
-	assign resetn = KEY[0];
+	wire reset_n;
+	assign reset_n = KEY[0];
 	// Declare your inputs and outputs here
 	// Do not change the following outputs
-	output			VGA_clock;   				//	VGA Clock
+	output			VGA_CLK;   				//	VGA Clock
 	output			VGA_HS;					//	VGA H_SYNC
 	output			VGA_VS;					//	VGA V_SYNC
 	output			VGA_BLANK_N;				//	VGA BLANK
@@ -26,10 +26,9 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 	output	[9:0]	VGA_R;   				//	VGA Red[9:0]
 	output	[9:0]	VGA_G;	 				//	VGA Green[9:0]
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
-	
+
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
 	wire writeEn;
-	wire ld_x, ld_y;
 	wire left_pressed;
 	wire right_pressed;
 	wire up_pressed;
@@ -48,7 +47,7 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 	// Define the number of colours as well as the initial background
 	// image file (.MIF) for the controller.
 	vga_adapter VGA(
-			.resetn(resetn),
+			.resetn(reset_n),
 			.clock(CLOCK_50),
 			.colour(colour),
 			.x(x),
@@ -62,18 +61,18 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 			.VGA_VS(VGA_VS),
 			.VGA_BLANK(VGA_BLANK_N),
 			.VGA_SYNC(VGA_SYNC_N),
-			.VGA_clock(VGA_clock));
+			.VGA_CLK(VGA_CLK));
 		defparam VGA.RESOLUTION = "160x120";
 		defparam VGA.MONOCHROME = "FALSE";
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
-	
-			
+
+
 	// Put your code here. Your code should produce signals x,y,colour and writeEn/plot
 	// for the VGA controller, in addition to any other functionality your design may require.
 	keyboard_tracker #(.PULSE_OR_HOLD(1)) keyboard(
 		.clock(CLOCK_50),
-		.reset(resetn),
+		.reset(reset_n),
 		.PS2_CLK(PS2_CLK),
 		.PS2_DAT(PS2_DAT),
 		.w(w),
@@ -87,9 +86,34 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 		.space(space),
 		.enter(enter)
 		);
-	
+  wire add_x;
+  wire [1:0] add_y;
+  wire y_pos_mod;
+  wire y_neg_mod;
+  // **********************
+  // ***** DATAPATH *******
+  // **********************
+  player player1(.clk(CLOCK_50),
+                  .reset_n(reset_n),
+                  .add_x(add_x),
+                  .add_y(add_y),
+                  .y_pos_mod(y_pos_mod),
+                  .y_neg_mod(y_neg_mod),
+                  .x_pos(x),
+                  .y_pos(y));
 
-	
+  // **********************
+  // **** CONTROLLER ******
+  // **********************
+  fsa_player fsa1(.clk(CLOCK_50),
+                  .reset_n(reset_n),
+                  .up(up_pressed),
+                  .down(down_pressed),
+                  .y_pos_mod(y_pos_mod),
+                  .y_neg_mod(y_neg_mod),
+                  .add_x(add_x),
+                  .add_y(add_y),
+                  .colour(colour),
+                  .write_en(writeEn));
+
 endmodule
-					 
-					 
