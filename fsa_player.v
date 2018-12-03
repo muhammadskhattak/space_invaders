@@ -11,7 +11,7 @@ module fsa_player(clk, reset_n, up, down, draw_enable, y_pos_mod, y_neg_mod, add
 	output reg [1:0] add_y; // Tells the datapath which pixel to draw to VGA
 	output reg write_en; // Tells the VGA when to draw
 	output reg [2:0] colour;
-	output continue_draw;
+	output reg continue_draw;
 	// ****************************
 	// ***** DEFINE STATES ********
 	// ****************************
@@ -70,11 +70,14 @@ module fsa_player(clk, reset_n, up, down, draw_enable, y_pos_mod, y_neg_mod, add
 		add_y = 2'b00;
 		y_pos_mod = 0;
 		y_neg_mod = 0;
-		write_en = 0;
+		write_en = 1;
 		colour = 3'b000;
 		continue_draw = 0;
 
 		case (current_state)
+		WAIT: begin
+			continue_draw = 1;
+		end
 		UP1: begin
 			y_pos_mod = 1'b1;
 			write_en = 1'b1;
