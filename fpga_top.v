@@ -28,7 +28,6 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 	output	[9:0]	VGA_B;   				//	VGA Blue[9:0]
 
 	// Create the colour, x, y and writeEn wires that are inputs to the controller.
-	wire writeEn;
 	wire left_pressed;
 	wire right_pressed;
 	wire up_pressed;
@@ -39,9 +38,10 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 	wire d;
 	wire space;
 	wire down;
-	wire [2:0] colour;
-	wire [7:0] x;
-	wire [6:0] y;
+	reg [2:0] colour;
+	reg [7:0] x;
+	reg [6:0] y;
+  reg writeEn;
 
 	// Create an Instance of a VGA controller - there can be only one!
 	// Define the number of colours as well as the initial background
@@ -97,6 +97,7 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 	wire [7:0] player_x;
 	wire [6:0] player_y;
   wire finished_player;
+  wire player_write;
   // **********************
   // **** ALIEN FIELDS ****
   // **********************
@@ -106,6 +107,7 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
   wire [6:0] alien_y;
   wire alien_colour;
   wire finished_alien;
+  wire alien_write;
 
   assign alien_y_init = 7'b0001111;
 
@@ -140,7 +142,7 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
                   .add_x(player_add_x),
                   .add_y(player_add_y),
                   .colour(player_colour),
-                  .write_en(writeEn)
+                  .write_en(player_write),
                   .continue_draw(finished_player));
 
   fsa_alien alien_fsa1(.clk(CLOCK_50),
@@ -148,15 +150,15 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
                   .draw_enable(ready_alien), // Might instead set to this to some more global signal
                   .add_x(alien_add_x),
                   .colour(alien_colour),
-                  .write_en(writeEn),
+                  .write_en(alien_write),
                   .continue_draw(finished_alien));
 
   // **********************
   // **** CONTROLLER ******
   // **********************
-  wire ready_player;
-  wire ready_alien;
-  wire curr;
+  reg ready_player;
+  reg ready_alien;
+  reg curr;
 
   always@(posedge CLOCK_50) begin
   if (finished_player)
@@ -168,18 +170,21 @@ module fpga_top(CLOCK_50, // The 50 MHz clock
 
   if (curr == 0)
     begin
-      ready_player = 1;
-      ready_alien = 0;
-      x_pos = player_x;
-      y_pos = player_y;
-      colour = player_colour;
+      ready_player <= 1;
+      ready_alien <= 0;
+      x <= player_x;
+      y <= player_y;
+      colour <= player_colour;
+      writeEn <= player_write;
     end
   else if (curr == 1)
     begin
-      ready_player = 0;
-      ready_alien = 1;
-      x_pos = alien_x;
-      y_pos = alien_y;
-      colour = alien_colour;
-  end
+      ready_player <= 0;
+      ready_alien <= 1;
+      x <= alien_x;
+      y <= alien_y;
+      colour <= alien_colour;
+      writeEn <= alien_write;
+   end
+	end
 endmodule

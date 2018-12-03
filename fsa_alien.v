@@ -5,7 +5,7 @@ module fsa_alien(clk, reset_n, draw_enable, add_x, colour, write_en, continue_dr
   output reg [2:0] add_x; // Draw the pixel at x_pixel + add_x
   output reg [2:0] colour; // Determines the colour of the pixel
   output reg write_en; // Tells the VGA if it should write
-  output continue_draw; // Tells the FPGA top FSA to draw the next object
+  output reg continue_draw; // Tells the FPGA top FSA to draw the next object
 	// ****************************
 	// ***** DEFINE STATES ********
 	// ****************************
@@ -45,31 +45,32 @@ module fsa_alien(clk, reset_n, draw_enable, add_x, colour, write_en, continue_dr
   begin : signal_states
     add_x = 2'b000;
     colour = 2'b000;
-    write_en = 0;
+    write_en = 1;
     continue_draw = 0;
     case (current_state)
-    RIGHT1: begin
-      write_en = 1;
-    end
-    RIGHT2: begin
-      write_en = 1;
-      add_x = 2'b001;
-      colour = 2'b101;
-    end
-    RIGHT3: begin
-      write_en = 1;
-      add_x = 2'b010;
-      colour = 2'b101;
-    end
-    RIGHT4: begin
-      write_en = 1;
-      add_x = 2'b011
-      colour = 2'b101;
-    end
-    RIGHT5: begin
-      write_en = 1;
-      add_x = 2'b100;
-      continue_draw = 1;
-    end
+		 RIGHT1: begin
+			write_en = 1;
+		 end
+		 RIGHT2: begin
+			write_en = 1;
+			add_x = 2'b001;
+			colour = 2'b101;
+		 end
+		 RIGHT3: begin
+			write_en = 1;
+			add_x = 2'b010;
+			colour = 2'b101;
+		 end
+		 RIGHT4: begin
+			write_en = 1;
+			add_x = 2'b011;
+			colour = 2'b101;
+		 end
+		 RIGHT5: begin
+			write_en = 1;
+			add_x = 2'b100;
+			continue_draw = 1;
+		 end
+	  endcase
   end
 endmodule

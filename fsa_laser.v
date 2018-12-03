@@ -43,27 +43,28 @@ module fsa_laser(clk, reset_n, space, add_x,  colour, write_en);
     write_en = 1;
 
     case (current_state)
-    RIGHT1: begin
-      write_en = 1;
-    end
-    RIGHT2: begin
-      write_en = 1;
-      add_x = 3'b001;
-      colour = 3'b101;
-    end
-    RIGHT3: begin
-      write_en = 1;
-      add_x = 3'b010;
-      colour = 3'b101;
-    end
-    RIGHT4: begin
-      write_en = 1;
-      add_x = 3'b011
-      colour = 3'b101;
-    end
-    RIGHT5: begin
-      write_en = 1;
-      add_x = 3'b100;
-    end
+		 LEFT1: begin
+			write_en = 1;
+		 end
+		 LEFT2: begin
+			write_en = 1;
+			add_x = 3'b001;
+			colour = 3'b101;
+		 end
+		 LEFT3: begin
+			write_en = 1;
+			add_x = 3'b010;
+			colour = 3'b101;
+		 end
+		 LEFT4: begin
+			write_en = 1;
+			add_x = 3'b011;
+			colour = 3'b101;
+		 end
+		 LEFT5: begin
+			write_en = 1;
+			add_x = 3'b100;
+		 end
+	  endcase
   end
 endmodule
